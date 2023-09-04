@@ -24,9 +24,9 @@ public class CourseBaseMapperTest {
 
     @Test
     void testCourseBaseMapper(){
-//        CourseBase courseBase = courseBaseMapper.selectById(74L);
-//        System.out.println(courseBase);
-//        Assertions.assertNotNull(courseBase);
+        CourseBase courseBase = courseBaseMapper.selectById(74L);
+        System.out.println(courseBase);
+        Assertions.assertNotNull(courseBase);
 
         //测试查询接口
         LambdaQueryWrapper<CourseBase> queryWrapper = new LambdaQueryWrapper<>();
