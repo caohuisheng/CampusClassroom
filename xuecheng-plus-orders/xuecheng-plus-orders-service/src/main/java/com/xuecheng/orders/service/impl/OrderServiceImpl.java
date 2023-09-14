@@ -1,0 +1,235 @@
+package com.xuecheng.orders.service.impl;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xuecheng.base.exception.XuechengPlusException;
+import com.xuecheng.base.utils.IdWorkerUtils;
+import com.xuecheng.base.utils.QRCodeUtil;
+import com.xuecheng.orders.config.AlipayConfig;
+import com.xuecheng.orders.mapper.XcOrdersGoodsMapper;
+import com.xuecheng.orders.mapper.XcOrdersMapper;
+import com.xuecheng.orders.mapper.XcPayRecordMapper;
+import com.xuecheng.orders.model.dto.AddOrderDto;
+import com.xuecheng.orders.model.dto.PayRecordDto;
+import com.xuecheng.orders.model.dto.PayStatusDto;
+import com.xuecheng.orders.model.po.XcOrders;
+import com.xuecheng.orders.model.po.XcOrdersGoods;
+import com.xuecheng.orders.model.po.XcPayRecord;
+import com.xuecheng.orders.service.OrderService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+@Service
+public class OrderServiceImpl implements OrderService {
+
+    @Autowired
+    XcOrdersMapper ordersMapper;
+
+    @Autowired
+    XcOrdersGoodsMapper ordersGoodsMapper;
+
+    @Autowired
+    XcPayRecordMapper payRecordMapper;
+
+
+    @Value("${pay.qrcodeurl}")
+    String qrcodeUrl;
+
+
+    @Override
+    public PayRecordDto createOrder(String userId, AddOrderDto addOrderDto) {
+        //1.添加商品订单
+        XcOrders xcOrders = saveXcOrders(userId, addOrderDto);
+
+        //2.添加支付交易记录
+        XcPayRecord payRecord = createPayRecord(xcOrders);
+
+        //3.生成二维码
+        String qrCode = null;
+        try{
+            QRCodeUtil qrCodeUtil = new QRCodeUtil();
+            //支付接口
+            Long payNo = payRecord.getPayNo();
+            String payUrl = String.format(qrcodeUrl, payNo);
+            qrCode = qrCodeUtil.createQRCode(payUrl, 200, 200);
+        }catch(Exception e){
+            XuechengPlusException.cast("生成二维码错误");
+        }
+
+        PayRecordDto payRecordDto = new PayRecordDto();
+        BeanUtils.copyProperties(payRecord,payRecordDto);
+        payRecordDto.setQrcode(qrCode);
+        return payRecordDto;
+    }
+
+    @Transactional
+    public XcOrders saveXcOrders(String userId, AddOrderDto addOrderDto){
+        //幂等性处理
+        XcOrders order = getOrderByBusinessId(addOrderDto.getOutBusinessId());
+        if(order!=null){
+            return order;
+        }
+        order = new XcOrders();
+
+        //1.添加订单记录
+        //生成订单号
+        long orderId = IdWorkerUtils.getInstance().nextId();
+        order.setId(orderId);
+        order.setTotalPrice(addOrderDto.getTotalPrice());
+        order.setCreateDate(LocalDateTime.now());
+        order.setStatus("600001");//未支付
+        order.setUserId(userId);
+        order.setOrderType(addOrderDto.getOrderType());
+        order.setOrderName(addOrderDto.getOrderName());
+        order.setOrderDetail(addOrderDto.getOrderDetail());
+        order.setOrderDescrip(addOrderDto.getOrderDescrip());
+        order.setOutBusinessId(addOrderDto.getOutBusinessId());//选课记录id
+        ordersMapper.insert(order);
+
+        //2.添加订单详情记录
+        String orderDetailJson = addOrderDto.getOrderDetail();
+        List<XcOrdersGoods> xcOrdersGoodsList = JSON.parseArray(orderDetailJson, XcOrdersGoods.class);
+        xcOrdersGoodsList.forEach(goods->{
+            XcOrdersGoods xcOrdersGoods = new XcOrdersGoods();
+            BeanUtils.copyProperties(goods,xcOrdersGoods);
+            xcOrdersGoods.setOrderId(orderId);//订单号
+            ordersGoodsMapper.insert(xcOrdersGoods);
+        });
+        return order;
+    }
+
+    //根据业务id查询订单
+    public XcOrders getOrderByBusinessId(String businessId) {
+        XcOrders orders = ordersMapper.selectOne(new LambdaQueryWrapper<XcOrders>().eq(XcOrders::getOutBusinessId, businessId));
+        return orders;
+    }
+
+    public XcPayRecord createPayRecord(XcOrders orders){
+        if(orders.getStatus().equals("600002")){//已支付
+            XuechengPlusException.cast("该订单已支付");
+        }
+
+        //添加支付记录
+        XcPayRecord payRecord = new XcPayRecord();
+        long payno = IdWorkerUtils.getInstance().nextId();
+        payRecord.setPayNo(payno);
+        payRecord.setOrderId(orders.getId());
+        payRecord.setOrderName(orders.getOrderName());
+        payRecord.setTotalPrice(orders.getTotalPrice());
+        payRecord.setCurrency("CNY");
+        payRecord.setCreateDate(LocalDateTime.now());
+        payRecord.setStatus("601001");//未支付
+        payRecord.setUserId(orders.getUserId());
+        payRecordMapper.insert(payRecord);
+
+        return payRecord;
+    }
+
+
+    @Override
+    public XcPayRecord getPayRecordByPayno(String payNo) {
+        XcPayRecord xcPayRecord = payRecordMapper.selectOne(new LambdaQueryWrapper<XcPayRecord>().eq(XcPayRecord::getPayNo, payNo));
+        return xcPayRecord;
+    }
+
+    @Override
+    public PayRecordDto queryPayResult(String payNo){
+        XcPayRecord payRecord = getPayRecordByPayno(payNo);
+        if (payRecord == null) {
+            XuechengPlusException.cast("请重新点击支付获取二维码");
+        }
+        //支付状态
+        String status = payRecord.getStatus();
+        //1.如果支付成功直接返回
+        if ("601002".equals(status)) {
+            PayRecordDto payRecordDto = new PayRecordDto();
+            BeanUtils.copyProperties(payRecord, payRecordDto);
+            return payRecordDto;
+        }
+        //2.从支付宝查询支付结果
+        PayStatusDto payStatusDto = queryPayResultFromAlipay(payNo);
+        //3.保存支付结果
+        saveAliPayStatus(payStatusDto);
+        //4.重新查询支付记录
+        payRecord = getPayRecordByPayno(payNo);
+        PayRecordDto payRecordDto = new PayRecordDto();
+        BeanUtils.copyProperties(payRecord, payRecordDto);
+        return payRecordDto;
+    }
+
+
+    /**
+     * 请求支付宝查询支付结果
+     * @param payNo 支付交易号
+     * @return 支付结果
+     */
+    public PayStatusDto queryPayResultFromAlipay(String payNo){
+        String APP_ID = "";
+        String APP_PRIVATE_KEY = "";
+        String ALIPAY_PUBLIC_KEY = "";
+        //========请求支付宝查询支付结果=============
+        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, APP_ID, APP_PRIVATE_KEY, "json", AlipayConfig.CHARSET, ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE); //获得初始化的AlipayClient
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("out_trade_no", payNo);
+        request.setBizContent(bizContent.toString());
+        AlipayTradeQueryResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+            if (!response.isSuccess()) {
+                XuechengPlusException.cast("请求支付查询查询失败");
+            }
+        } catch (AlipayApiException e) {
+            log.error("请求支付宝查询支付结果异常:{}", e.toString(), e);
+            XuechengPlusException.cast("请求支付查询查询失败");
+        }
+
+        //获取支付结果
+        String resultJson = response.getBody();
+        //转map
+        Map resultMap = JSON.parseObject(resultJson, Map.class);
+        Map alipay_trade_query_response = (Map) resultMap.get("alipay_trade_query_response");
+        //支付结果
+        String trade_status = (String) alipay_trade_query_response.get("trade_status");
+        String total_amount = (String) alipay_trade_query_response.get("total_amount");
+        String trade_no = (String) alipay_trade_query_response.get("trade_no");
+        //保存支付结果
+        PayStatusDto payStatusDto = new PayStatusDto();
+        payStatusDto.setOut_trade_no(payNo);
+        payStatusDto.setTrade_status(trade_status);
+        payStatusDto.setApp_id(APP_ID);
+        payStatusDto.setTrade_no(trade_no);
+        payStatusDto.setTotal_amount(total_amount);
+
+        return payStatusDto;
+    }
+
+    /**
+     * @description 保存支付宝支付结果
+     * @param payStatusDto  支付结果信息
+     * @return void
+     * @author Mr.M
+     * @date 2022/10/4 16:52
+     */
+    public void saveAliPayStatus(PayStatusDto payStatusDto){
+
+    }
+
+
+
+}

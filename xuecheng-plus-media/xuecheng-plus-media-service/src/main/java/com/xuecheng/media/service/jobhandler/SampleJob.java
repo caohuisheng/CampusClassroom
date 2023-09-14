@@ -1,9 +1,14 @@
 package com.xuecheng.media.service.jobhandler;
 
+import com.xuecheng.media.model.po.MediaProcess;
+import com.xuecheng.media.service.MediaProcessService;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @description 测试执行器
@@ -36,4 +41,6 @@ public class SampleJob {
         log.info("分片参数：当前分片序号 = {}, 总分片数 = {}", shardIndex, shardTotal);
         log.info("开始执行第"+shardIndex+"批任务");
     }
+
+
 }

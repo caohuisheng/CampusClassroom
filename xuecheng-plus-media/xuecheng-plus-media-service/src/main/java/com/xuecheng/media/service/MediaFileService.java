@@ -9,6 +9,7 @@ import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public interface MediaFileService {
      */
     public PageResult<MediaFiles> queryMediaFiles(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto);
 
-    public UploadFileResultDto uploadMediaFile(Long companyId, UploadFileParamsDto uploadFileParamsDto,String localFilePath);
+    public UploadFileResultDto uploadMediaFile(Long companyId, UploadFileParamsDto uploadFileParamsDto,String localFilePath,String objectName);
 
     public MediaFiles addMediaFilesToDb(Long companyId,String fileMd5,UploadFileParamsDto uploadFileParamsDto,String bucket,String objectName);
 
@@ -40,4 +41,10 @@ public interface MediaFileService {
     public RestResponse<Boolean> uploadChunk(String fileMd5,int chunkIndex,String localfilePath);
 
     public RestResponse<Boolean> mergeChunks(Long companyId, String fileMd5, int chunkTotal, UploadFileParamsDto uploadFileParamsDto);
+
+    File downloadFileFromMinIO(String bucket, String objectName);
+
+    boolean addMediaFilesToMinio(String bucket,String objectName,String localFilePath,String mimeType);
+
+    MediaFiles getMediaFilesById(String mediaId);
 }

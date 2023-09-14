@@ -49,7 +49,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
     private CourseCategoryMapper courseCategoryMapper;
 
     @Override
-    public PageResult<CourseBase> queryCourseBaseInfo(PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
+    public PageResult<CourseBase> queryCourseBaseInfo(Long companyId,PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
         //测试查询接口
         LambdaQueryWrapper<CourseBase> queryWrapper = new LambdaQueryWrapper<>();
 
@@ -60,6 +60,8 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         queryWrapper.eq(StringUtils.isNotEmpty(queryCourseParamsDto.getAuditStatus()),CourseBase::getAuditStatus,queryCourseParamsDto.getAuditStatus());
         //根据课程发布状态
         queryWrapper.eq(StringUtils.isNotEmpty(queryCourseParamsDto.getPublishStatus()),CourseBase::getStatus,queryCourseParamsDto.getPublishStatus());
+        //教学机构细粒度授权
+        queryWrapper.eq(CourseBase::getCompanyId,companyId);
 
         //分页参数
         Page<CourseBase> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());

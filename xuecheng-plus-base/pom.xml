@@ -66,6 +66,7 @@
             <artifactId>simplemagic</artifactId>
             <version>1.17</version>
         </dependency>
+        <!-- 二维码生成&识别组件 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -75,12 +76,12 @@
             <artifactId>core</artifactId>
             <version>3.3.3</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>3.3.3</version>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
@@ -93,6 +94,8 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+
+
     </dependencies>
 
 </project>

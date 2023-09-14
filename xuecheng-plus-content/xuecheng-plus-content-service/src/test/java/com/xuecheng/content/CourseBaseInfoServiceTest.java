@@ -31,10 +31,10 @@ public class CourseBaseInfoServiceTest {
         queryCourseParamsDto.setAuditStatus("202004");
         queryCourseParamsDto.setPublishStatus("");
 
-        PageResult<CourseBase> courseBasePageResult = courseBaseInfoService.queryCourseBaseInfo(pageParams, queryCourseParamsDto);
-        System.out.println(courseBasePageResult);
-        log.error("result",courseBasePageResult.getPageSize());
+        int i = 1/0;
+
+//        PageResult<CourseBase> courseBasePageResult = courseBaseInfoService.queryCourseBaseInfo(pageParams, queryCourseParamsDto);
+//        System.out.println(courseBasePageResult);
+//        log.error("result",courseBasePageResult.getPageSize());
     }
-
-
 }

@@ -14,7 +14,7 @@ spring:
 #    password: root
   cloud:
     nacos:
-      server-addr: localhost:8845
+      server-addr: 192.168.101.65:8848
       discovery:
         namespace: dev
         group: xuecheng-plus-project
@@ -28,10 +28,19 @@ spring:
             group: xuecheng-plus-project
             refresh: true
         shared-configs:
-          - data-id: swagger-${spring.profiles.active}.yaml
+#          - data-id: swagger-${spring.profiles.active}.yaml
+#            group: xuecheng-plus-common
+#            refresh: true
+          - data-id: logging-${spring.profiles.active}.yaml
             group: xuecheng-plus-common
             refresh: true
-          - data-id: logging-${spring.profiles.active}.yaml
+          - data-id: freemarker-config-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: feign-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: redis-${spring.profiles.active}.yaml
             group: xuecheng-plus-common
             refresh: true
   #profiles默认为dev

@@ -14,7 +14,7 @@ spring:
 #    password: root
   cloud:
     nacos:
-      server-addr: localhost:8845
+      server-addr: 192.168.101.65:8848
       discovery:
         namespace: dev
         group: xuecheng-plus-project

@@ -9,10 +9,12 @@ import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.mapper.MediaFilesMapper;
+import com.xuecheng.media.mapper.MediaProcessMapper;
 import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import com.xuecheng.media.model.po.MediaProcess;
 import com.xuecheng.media.service.MediaFileService;
 import io.minio.*;
 import io.minio.messages.DeleteError;
@@ -58,6 +60,9 @@ public class MediaFileServiceImpl implements MediaFileService {
     @Autowired
     private MediaFileService currentProxy;
 
+    @Autowired
+    private MediaProcessMapper mediaProcessMapper;
+
 
     @Value("${minio.bucket.files}")
     private String bucket_files;
@@ -65,15 +70,23 @@ public class MediaFileServiceImpl implements MediaFileService {
     private String bucket_videofiles;
 
     @Override
+    public MediaFiles getMediaFilesById(String mediaId) {
+        return mediaFilesMapper.selectById(mediaId);
+    }
+
+    @Override
     public PageResult<MediaFiles> queryMediaFiles(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto) {
 
         //构建查询条件对象
-        LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<MediaFiles> lqw = new LambdaQueryWrapper<>();
+        lqw.like(!StringUtils.isEmpty(queryMediaParamsDto.getFilename()),MediaFiles::getFilename,queryMediaParamsDto.getFilename());
+        lqw.eq(!StringUtils.isEmpty(queryMediaParamsDto.getAuditStatus()),MediaFiles::getAuditStatus,queryMediaParamsDto.getAuditStatus());
+        lqw.eq(!StringUtils.isEmpty(queryMediaParamsDto.getFileType()),MediaFiles::getFileType,queryMediaParamsDto.getFileType());
 
         //分页对象
         Page<MediaFiles> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
         // 查询数据内容获得结果
-        Page<MediaFiles> pageResult = mediaFilesMapper.selectPage(page, queryWrapper);
+        Page<MediaFiles> pageResult = mediaFilesMapper.selectPage(page, lqw);
         // 获取数据列表
         List<MediaFiles> list = pageResult.getRecords();
         // 获取数据总数
@@ -102,7 +115,8 @@ public class MediaFileServiceImpl implements MediaFileService {
         return folder;
     }
 
-    private boolean addMediaFilesToMinio(String bucket,String objectName,String localFilePath,String mimeType){
+    @Override
+    public boolean addMediaFilesToMinio(String bucket,String objectName,String localFilePath,String mimeType){
         try {
             UploadObjectArgs testbucket = UploadObjectArgs.builder()
                     .bucket(bucket)
@@ -119,6 +133,8 @@ public class MediaFileServiceImpl implements MediaFileService {
             return false;
         }
     }
+
+
 
     @Override
     @Transactional
@@ -145,9 +161,33 @@ public class MediaFileServiceImpl implements MediaFileService {
                 XuechengPlusException.cast("文件保存数据库失败");
                 log.error("保存文件到数据库失败:{}",mediaFiles.toString());
             }
-            log.error("保存文件到数据库成功:{}",mediaFiles.toString());
+            //记录
+            log.debug("保存文件到数据库成功:{}",mediaFiles.toString());
+
+            //添加到待处理任务表
+            addWaitingTask(mediaFiles);
         }
+
         return mediaFiles;
+    }
+
+    private void addWaitingTask(MediaFiles mediaFiles){
+        //获取文件的mimetype
+        String filename = mediaFiles.getFilename();
+        String ext = filename.substring(filename.lastIndexOf("."));
+        String mimeType = getMimeType(ext);
+        //如果文件得mimetype为avi才添加
+        if(mimeType.equals("video/x-msvideo")){
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles,mediaProcess);
+            mediaProcess.setStatus("1");//设置状态为未处理
+            mediaProcess.setCreateDate(LocalDateTime.now());
+            mediaProcess.setFailCount(0);
+            mediaProcess.setUrl(null);
+
+            mediaProcessMapper.insert(mediaProcess);
+            log.debug("添加视频转码任务成功");
+        }
     }
 
     private String getFileMd5(File file){
@@ -161,7 +201,7 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
-    public UploadFileResultDto uploadMediaFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String localFilePath) {
+    public UploadFileResultDto uploadMediaFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String localFilePath,String objectName) {
         File file = new File(localFilePath);
         if(!file.exists()){
             XuechengPlusException.cast("文件不存在");
@@ -173,8 +213,11 @@ public class MediaFileServiceImpl implements MediaFileService {
         String mimeType = getMimeType(extension);
         //获取文件MD5
         String fileMd5 = getFileMd5(file);
+
         //获取minio文件对象名
-        String objectName = getDefaultFolderPath()+fileMd5+extension;
+        if(StringUtils.isEmpty(objectName)){
+            objectName = getDefaultFolderPath()+fileMd5+extension; //如果没有传对象名，默认使用年月日路径方式
+        }
         //上传文件到minio
         boolean flag = addMediaFilesToMinio(bucket_files, objectName, localFilePath, mimeType);
 
@@ -372,6 +415,7 @@ public class MediaFileServiceImpl implements MediaFileService {
      * @param objectName
      * @return
      */
+    @Override
     public File downloadFileFromMinIO(String bucket,String objectName){
         //临时文件
         File minioFile = null;
