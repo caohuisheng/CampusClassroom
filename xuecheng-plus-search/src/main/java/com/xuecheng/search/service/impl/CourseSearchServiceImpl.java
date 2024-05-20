@@ -55,7 +55,6 @@ public class CourseSearchServiceImpl implements CourseSearchService {
 
     @Override
     public SearchPageResultDto<CourseIndex> queryCoursePubIndex(PageParams pageParams, SearchCourseParamDto courseSearchParam) {
-
         //设置索引
         SearchRequest searchRequest = new SearchRequest(courseIndexStore);
 
@@ -77,7 +76,7 @@ public class CourseSearchServiceImpl implements CourseSearchService {
             multiMatchQueryBuilder.field("name",10);
             boolQueryBuilder.must(multiMatchQueryBuilder);
         }
-        //过虑
+        //过滤
         if(StringUtils.isNotEmpty(courseSearchParam.getMt())){
             boolQueryBuilder.filter(QueryBuilders.termQuery("mtName",courseSearchParam.getMt()));
         }
@@ -124,7 +123,6 @@ public class CourseSearchServiceImpl implements CourseSearchService {
         List<CourseIndex> list = new ArrayList<>();
 
         for (SearchHit hit : searchHits) {
-
             String sourceAsString = hit.getSourceAsString();
             CourseIndex courseIndex = JSON.parseObject(sourceAsString, CourseIndex.class);
 
@@ -146,14 +144,12 @@ public class CourseSearchServiceImpl implements CourseSearchService {
                         stringBuffer.append(str.string());
                     }
                     name = stringBuffer.toString();
-
                 }
             }
             courseIndex.setId(id);
             courseIndex.setName(name);
 
             list.add(courseIndex);
-
         }
         SearchPageResultDto<CourseIndex> pageResult = new SearchPageResultDto<>(list, totalHits.value,pageNo,pageSize);
 

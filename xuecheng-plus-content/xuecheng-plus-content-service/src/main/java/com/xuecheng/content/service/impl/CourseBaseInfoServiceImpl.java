@@ -1,5 +1,6 @@
 package com.xuecheng.content.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xuecheng.base.exception.XuechengPlusException;
@@ -12,19 +13,15 @@ import com.xuecheng.content.model.dto.AddCourseDto;
 import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.QueryCourseParamsDto;
 import com.xuecheng.content.model.dto.UpdateCourseDto;
-import com.xuecheng.content.model.po.CourseBase;
-import com.xuecheng.content.model.po.CourseCategory;
-import com.xuecheng.content.model.po.CourseMarket;
-import com.xuecheng.content.model.po.CourseTeacher;
-import com.xuecheng.content.service.CourseBaseInfoService;
-import com.xuecheng.content.service.CourseCategoryService;
-import com.xuecheng.content.service.CourseTeacherService;
-import com.xuecheng.content.service.TeachplanService;
+import com.xuecheng.content.model.po.*;
+import com.xuecheng.content.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,6 +44,11 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
 
     @Autowired
     private CourseCategoryMapper courseCategoryMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private CoursePublishService coursePublishService;
+
 
     @Override
     public PageResult<CourseBase> queryCourseBaseInfo(Long companyId,PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
@@ -83,33 +85,33 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
     public CourseBaseInfoDto saveCourseBaseInfo(long companyId,AddCourseDto courseDto) {
 //        int i = 1/0;
         //合法性校验
-//        if (StringUtils.isBlank(courseDto.getName())) {
-//            XuechengPlusException.cast("课程名称为空");
-//        }
-//
-//        if (StringUtils.isBlank(courseDto.getMt())) {
-//            XuechengPlusException.cast("课程大分类为空");
-//        }
-//
-//        if (StringUtils.isBlank(courseDto.getSt())) {
-//            XuechengPlusException.cast("课程小分类为空");
-//        }
-//
-//        if (StringUtils.isBlank(courseDto.getGrade())) {
-//            XuechengPlusException.cast("课程等级为空");
-//        }
-//
-//        if (StringUtils.isBlank(courseDto.getTeachmode())) {
-//            XuechengPlusException.cast("教育模式为空");
-//        }
-//
-//        if (StringUtils.isBlank(courseDto.getUsers())) {
-//            XuechengPlusException.cast("适应人群为空");
-//        }
-//
-//        if (StringUtils.isBlank(courseDto.getCharge())) {
-//            XuechengPlusException.cast("收费规则为空");
-//        }
+        if (StringUtils.isBlank(courseDto.getName())) {
+            XuechengPlusException.cast("课程名称为空");
+        }
+
+        if (StringUtils.isBlank(courseDto.getMt())) {
+            XuechengPlusException.cast("课程大分类为空");
+        }
+
+        if (StringUtils.isBlank(courseDto.getSt())) {
+            XuechengPlusException.cast("课程小分类为空");
+        }
+
+        if (StringUtils.isBlank(courseDto.getGrade())) {
+            XuechengPlusException.cast("课程等级为空");
+        }
+
+        if (StringUtils.isBlank(courseDto.getTeachmode())) {
+            XuechengPlusException.cast("教育模式为空");
+        }
+
+        if (StringUtils.isBlank(courseDto.getUsers())) {
+            XuechengPlusException.cast("适应人群为空");
+        }
+
+        if (StringUtils.isBlank(courseDto.getCharge())) {
+            XuechengPlusException.cast("收费规则为空");
+        }
 
         //创建CourseBase类
         CourseBase newCourseBase = new CourseBase();
@@ -124,7 +126,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
             throw new RuntimeException("课程添加失败");
         }
 
-        //获取课程市场信息
+        //获取课程市场信息并保存
         CourseMarket courseMarket = new CourseMarket();
         BeanUtils.copyProperties(courseDto,courseMarket);
         Long courseId = newCourseBase.getId();

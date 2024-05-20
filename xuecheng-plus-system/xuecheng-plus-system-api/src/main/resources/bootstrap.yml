@@ -9,12 +9,12 @@ spring:
     name: system-api
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://192.168.101.65:3306/xcplus_system?serverTimezone=UTC&userUnicode=true&useSSL=false&
+#    url: jdbc:mysql://116.62.8.243:3306/xcplus_system?serverTimezone=UTC&userUnicode=true&useSSL=false&
 #    username: root
 #    password: root
   cloud:
     nacos:
-      server-addr: 192.168.101.65:8848
+      server-addr: centos:8848
       discovery:
         namespace: dev
         group: xuecheng-plus-project
@@ -28,9 +28,9 @@ spring:
             group: xuecheng-plus-project
             refresh: true
         shared-configs:
-          - data-id: swagger-${spring.profiles.active}.yaml
-            group: xuecheng-plus-common
-            refresh: true
+#          - data-id: swagger-${spring.profiles.active}.yaml
+#            group: xuecheng-plus-common
+#            refresh: true
           - data-id: logging-${spring.profiles.active}.yaml
             group: xuecheng-plus-common
             refresh: true
@@ -39,8 +39,8 @@ spring:
     active: dev
 
 # 日志文件配置路径
-#logging:
-#  config: classpath:log4j2-dev.xml
+logging:
+  config: classpath:log4j2-dev.xml
 #
 ## swagger 文档配置
 #swagger:

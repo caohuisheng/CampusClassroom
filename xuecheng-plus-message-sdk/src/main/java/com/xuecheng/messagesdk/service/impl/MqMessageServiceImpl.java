@@ -32,7 +32,6 @@ public class MqMessageServiceImpl extends ServiceImpl<MqMessageMapper, MqMessage
     @Autowired
     MqMessageHistoryMapper mqMessageHistoryMapper;
 
-
     @Override
     public List<MqMessage> getMessageList(int shardIndex, int shardTotal, String messageType,int count) {
         return mqMessageMapper.selectListByShardIndex(shardTotal,shardIndex,messageType,count);
@@ -46,12 +45,12 @@ public class MqMessageServiceImpl extends ServiceImpl<MqMessageMapper, MqMessage
         mqMessage.setBusinessKey2(businessKey2);
         mqMessage.setBusinessKey3(businessKey3);
         int insert = mqMessageMapper.insert(mqMessage);
+
         if(insert>0){
             return mqMessage;
         }else{
             return null;
         }
-
     }
 
     @Transactional
@@ -62,7 +61,6 @@ public class MqMessageServiceImpl extends ServiceImpl<MqMessageMapper, MqMessage
         mqMessage.setState("1");
         int update = mqMessageMapper.update(mqMessage, new LambdaQueryWrapper<MqMessage>().eq(MqMessage::getId, id));
         if(update>0){
-
             mqMessage = mqMessageMapper.selectById(id);
             //添加到历史表
             MqMessageHistory mqMessageHistory = new MqMessageHistory();
@@ -73,7 +71,6 @@ public class MqMessageServiceImpl extends ServiceImpl<MqMessageMapper, MqMessage
             return 1;
         }
         return 0;
-
     }
 
     @Override

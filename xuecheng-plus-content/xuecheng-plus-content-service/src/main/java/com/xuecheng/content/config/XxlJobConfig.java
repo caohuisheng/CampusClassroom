@@ -43,7 +43,7 @@ public class XxlJobConfig {
 
     @Bean
     public XxlJobSpringExecutor xxlJobExecutor() {
-        logger.info(">>>>>>>>>>> xxl-job config init.");
+        logger.info(">>>>>>>>>>> xxl-job config init\t token:{}",accessToken);
         XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
         xxlJobSpringExecutor.setAdminAddresses(adminAddresses);
         xxlJobSpringExecutor.setAppname(appname);

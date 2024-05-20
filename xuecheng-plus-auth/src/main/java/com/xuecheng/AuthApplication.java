@@ -29,5 +29,4 @@ public class AuthApplication {
         RestTemplate restTemplate = new RestTemplate(new OkHttp3ClientHttpRequestFactory());
         return restTemplate;
     }
-
 }

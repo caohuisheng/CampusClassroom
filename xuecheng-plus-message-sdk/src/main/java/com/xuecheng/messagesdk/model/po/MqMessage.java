@@ -98,6 +98,4 @@ public class MqMessage implements Serializable {
      * 阶段4处理状态, 0:初始，1:成功
      */
     private String stageState4;
-
-
 }

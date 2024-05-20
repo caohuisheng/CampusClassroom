@@ -1,5 +1,6 @@
 package com.xuecheng.content.service.jobhandler;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xuecheng.base.exception.XuechengPlusException;
 import com.xuecheng.content.feignclient.SearchServiceClient;
 import com.xuecheng.content.mapper.CoursePublishMapper;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 课程发布惹怒处理类
@@ -57,9 +59,19 @@ public class CoursePublishTask extends MessageProcessAbstract {
         saveCourseIndex(mqMessage,courseId);
 
         //3.课程缓存
-
-
+        saveCourseCache(mqMessage,courseId);
+        new Page<Object>(1,2);
         return true;
+    }
+
+    //将课程信息缓存至redis
+    public void saveCourseCache(MqMessage mqMessage,long courseId){
+        log.debug("将课程信息缓存至redis,课程id:{}",courseId);
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -94,8 +106,8 @@ public class CoursePublishTask extends MessageProcessAbstract {
         Long taskId = mqMessage.getId();
         MqMessageService mqMessageService = this.getMqMessageService();
         //消息幂等性处理
-        int stageOne = mqMessageService.getStageTwo(taskId);
-        if(stageOne > 0){
+        int stageTwo = mqMessageService.getStageTwo(taskId);
+        if(stageTwo > 0){
             log.debug("课程索引已添加,直接返回：{}",taskId);
             return ;
         }

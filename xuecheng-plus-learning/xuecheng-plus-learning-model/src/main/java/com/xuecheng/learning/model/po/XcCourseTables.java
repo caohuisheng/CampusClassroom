@@ -71,6 +71,7 @@ public class XcCourseTables implements Serializable {
     /**
      * 更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateDate;
 
     /**

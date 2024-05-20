@@ -69,5 +69,4 @@ public class MyCourseTablesController {
         return myCourseTablesService.getMyCoursetables(params);
     }
 
-
 }

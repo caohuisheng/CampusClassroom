@@ -27,6 +27,4 @@ public class NumberLetterCheckCodeGenerator implements CheckCodeService.CheckCod
         }
         return sb.toString();
     }
-
-
 }

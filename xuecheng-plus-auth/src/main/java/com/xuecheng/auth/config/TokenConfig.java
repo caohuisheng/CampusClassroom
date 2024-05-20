@@ -75,6 +75,4 @@ public class TokenConfig {
         service.setRefreshTokenValiditySeconds(259200); // 刷新令牌默认有效期3天
         return service;
     }
-
-
 }

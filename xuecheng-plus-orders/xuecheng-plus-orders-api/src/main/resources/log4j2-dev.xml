@@ -38,7 +38,7 @@
          <!--过滤掉spring和mybatis的一些无用的debug信息-->
         <logger name="org.springframework" level="INFO">
         </logger>
-        <logger name="org.mybatis" level="INFO">
+        <logger name="org.mybatis" level="DEBUG">
         </logger>
         <logger name="cn.itcast.wanxinp2p.consumer.mapper" level="DEBUG">
         </logger>
@@ -77,9 +77,9 @@
         <!--TRACE   600-->
         <!--ALL   Integer.MAX_VALUE-->
         <Root level="DEBUG" includeLocation="true">
-            <AppenderRef ref="AsyncAppender"/>
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DebugAppender"/>
+<!--            <AppenderRef ref="AsyncAppender"/>-->
+<!--            <AppenderRef ref="DebugAppender"/>-->
         </Root>
     </Loggers>
 </Configuration>

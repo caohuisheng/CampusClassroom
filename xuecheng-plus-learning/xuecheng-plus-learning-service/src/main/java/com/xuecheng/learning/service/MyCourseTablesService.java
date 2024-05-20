@@ -31,4 +31,6 @@ public interface MyCourseTablesService {
      * @date 2022/10/27 9:24
      */
     public PageResult<XcCourseTables> getMyCoursetables(MyCourseTableParams params);
+
+    boolean saveChooseCourseStatus(String choosecourseId);
 }

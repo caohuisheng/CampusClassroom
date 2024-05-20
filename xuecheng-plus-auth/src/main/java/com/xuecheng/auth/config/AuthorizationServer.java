@@ -61,8 +61,7 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
     //令牌端点的安全配置
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
-        security
-                .tokenKeyAccess("permitAll()")                    //oauth/token_key是公开
+        security.tokenKeyAccess("permitAll()")                    //oauth/token_key是公开
                 .checkTokenAccess("permitAll()")                  //oauth/check_token公开
                 .allowFormAuthenticationForClients();                //表单认证（申请令牌）
     }

@@ -46,7 +46,7 @@ public class GatewayAuthFilter implements GlobalFilter, Ordered {
             Properties properties = new Properties();
             properties.load(resourceAsStream);
             Set<String> strings = properties.stringPropertyNames();
-            whitelist= new ArrayList<>(strings);
+            whitelist = new ArrayList<>(strings);
         } catch (Exception e) {
             log.error("加载/security-whitelist.properties出错:{}",e.getMessage());
             e.printStackTrace();
@@ -55,7 +55,6 @@ public class GatewayAuthFilter implements GlobalFilter, Ordered {
 
     @Autowired
     private TokenStore tokenStore;
-
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -87,6 +86,7 @@ public class GatewayAuthFilter implements GlobalFilter, Ordered {
             log.info("认证令牌无效: {}", token);
             return buildReturnMono("认证令牌无效",exchange);
         }
+
     }
 
     /**

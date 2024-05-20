@@ -1,13 +1,18 @@
 package com.xuecheng.auth.controller;
 
+import com.alibaba.nacos.common.model.RestResult;
+import com.xuecheng.ucenter.model.dto.RegisterParams;
 import com.xuecheng.ucenter.model.po.XcUser;
+import com.xuecheng.ucenter.service.RegisterService;
 import com.xuecheng.ucenter.service.WxAuthService;
 import com.xuecheng.ucenter.service.impl.WxAuthServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 
 @Slf4j

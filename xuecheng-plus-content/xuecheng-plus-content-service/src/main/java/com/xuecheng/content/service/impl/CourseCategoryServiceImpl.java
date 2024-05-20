@@ -41,9 +41,6 @@ public class CourseCategoryServiceImpl implements CourseCategoryService {
                 parentTreeDto.getChildrenTreeNodes().add(item);
             }
         });
-
         return categoryTreeDtos;
     }
-
-
 }

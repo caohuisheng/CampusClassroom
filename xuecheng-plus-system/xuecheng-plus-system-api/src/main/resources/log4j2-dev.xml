@@ -76,10 +76,10 @@
         <!--DEBUG   500-->
         <!--TRACE   600-->
         <!--ALL   Integer.MAX_VALUE-->
-        <Root level="DEBUG" includeLocation="true">
-            <AppenderRef ref="AsyncAppender"/>
+        <Root level="INFO" includeLocation="true">
+<!--            <AppenderRef ref="AsyncAppender"/>-->
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DebugAppender"/>
+<!--            <AppenderRef ref="DebugAppender"/>-->
         </Root>
     </Loggers>
 </Configuration>

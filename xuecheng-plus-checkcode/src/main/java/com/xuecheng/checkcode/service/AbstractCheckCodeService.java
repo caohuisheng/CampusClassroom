@@ -56,9 +56,7 @@ public abstract class AbstractCheckCodeService implements CheckCodeService {
         String code;
     }
 
-
     public abstract CheckCodeResultDto generate(CheckCodeParamsDto checkCodeParamsDto);
-
 
     public boolean verify(String key, String code){
         if (StringUtils.isBlank(key) || StringUtils.isBlank(code)){
@@ -75,6 +73,4 @@ public abstract class AbstractCheckCodeService implements CheckCodeService {
         }
         return result;
     }
-
-
 }

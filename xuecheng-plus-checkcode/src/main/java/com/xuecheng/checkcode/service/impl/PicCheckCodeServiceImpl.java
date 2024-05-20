@@ -59,7 +59,6 @@ public class PicCheckCodeServiceImpl extends AbstractCheckCodeService implements
         checkCodeResultDto.setAliasing(pic);
         checkCodeResultDto.setKey(key);
         return checkCodeResultDto;
-
     }
 
     private String createPic(String code) {

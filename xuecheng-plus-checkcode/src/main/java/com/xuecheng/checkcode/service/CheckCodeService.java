@@ -47,8 +47,6 @@ public interface CheckCodeService {
          * @return 验证码
          */
         String generate(int length);
-        
-
     }
 
     /**

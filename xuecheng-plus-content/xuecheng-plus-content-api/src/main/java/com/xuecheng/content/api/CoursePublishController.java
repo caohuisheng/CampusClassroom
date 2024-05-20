@@ -77,7 +77,6 @@ public class CoursePublishController {
         coursePublishService.publish(companyId,courseId);
     }
 
-    @ApiOperation("查询课程发布信息")
     @ResponseBody
     @GetMapping("/r/coursepublish/{courseId}")
     public CoursePublish getCoursePublish(@PathVariable Long courseId){

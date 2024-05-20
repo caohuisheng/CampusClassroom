@@ -41,6 +41,4 @@ public class SampleJob {
         log.info("分片参数：当前分片序号 = {}, 总分片数 = {}", shardIndex, shardTotal);
         log.info("开始执行第"+shardIndex+"批任务");
     }
-
-
 }

@@ -25,7 +25,6 @@ public class MyLearningController {
     @Autowired
     LearningService learningService;
 
-
     @ApiOperation("获取视频")
     @GetMapping("/open/learn/getvideo/{courseId}/{teachplanId}/{mediaId}")
     public RestResponse<String> getvideo(@PathVariable("courseId") Long courseId, @PathVariable("teachplanId") Long teachplanId,

@@ -47,7 +47,6 @@ public class WxAuthServiceImpl implements AuthService, WxAuthService {
     @Value("${weixin.secret}")
     String secret;
 
-
     @Override
     public XcUserExt execute(AuthParamsDto authParamsDto) {
         //账号

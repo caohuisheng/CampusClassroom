@@ -9,13 +9,13 @@ import com.xuecheng.content.model.dto.QueryCourseParamsDto;
 import com.xuecheng.content.model.dto.UpdateCourseDto;
 import com.xuecheng.content.model.po.CourseBase;
 import com.xuecheng.content.service.CourseBaseInfoService;
-import com.xuecheng.content.utils.SecurityUtil;
+//import com.xuecheng.content.utils.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,14 +35,13 @@ public class CourseBaseInfoController {
 
     @ApiOperation(value = "课程分页查询接口")
     @PostMapping("/course/list")
-    @PreAuthorize("hasAuthority('xc_teachmanager_course_list')") //设置权限，拥有该权限才可以访问
+//    @PreAuthorize("hasAuthority('xc_teachmanager_course_list')") //设置权限，拥有该权限才可以访问
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required = false) QueryCourseParamsDto queryCourseParamsDto){
         //得到companyId
-        SecurityUtil.XcUser user = SecurityUtil.getUser();
-        String companyId = user.getCompanyId();
-
-        PageResult<CourseBase> pageResult = courseBaseInfoService.queryCourseBaseInfo(Long.parseLong(companyId),pageParams,queryCourseParamsDto);
-        log.error("分页查询结果",pageResult.getItems(),"aa");
+//        SecurityUtil.XcUser user = SecurityUtil.getUser();
+//        String companyId = user.getCompanyId();
+        long companyId = 1232141425L;
+        PageResult<CourseBase> pageResult = courseBaseInfoService.queryCourseBaseInfo(companyId,pageParams,queryCourseParamsDto);
         return pageResult;
     }
 
@@ -58,10 +57,9 @@ public class CourseBaseInfoController {
     public CourseBaseInfoDto queryCourseBase(@PathVariable Long courseId){
         //获取当前用户身份
 //        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        System.out.println(principal);
 
-        SecurityUtil.XcUser user = SecurityUtil.getUser();
-        System.out.println(user);
+//        SecurityUtil.XcUser user = SecurityUtil.getUser();
+//        System.out.println(user);
 
         return courseBaseInfoService.getCourseBaseInfoDto(courseId);
     }

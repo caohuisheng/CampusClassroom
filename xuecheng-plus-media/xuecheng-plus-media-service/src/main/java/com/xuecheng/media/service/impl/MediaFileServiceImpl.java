@@ -125,7 +125,7 @@ public class MediaFileServiceImpl implements MediaFileService {
                     .contentType(mimeType)//默认根据扩展名确定文件内容类型，也可以指定
                     .build();
             minioClient.uploadObject(testbucket);
-            log.error("上传文件到minio成功，buacket:{},objectName:{}",bucket,objectName);
+            log.info("上传文件到minio成功，buacket:{},objectName:{}",bucket,objectName);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,8 +133,6 @@ public class MediaFileServiceImpl implements MediaFileService {
             return false;
         }
     }
-
-
 
     @Override
     @Transactional

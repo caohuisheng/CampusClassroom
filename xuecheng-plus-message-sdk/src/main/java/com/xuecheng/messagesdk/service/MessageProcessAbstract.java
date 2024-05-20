@@ -44,7 +44,6 @@ public abstract class MessageProcessAbstract {
      * @date 2022/9/21 20:35
     */
     public void process(int shardIndex, int shardTotal,  String messageType,int count,long timeout) {
-
         try {
             //扫描消息表获取任务清单
             List<MqMessage> messageList = mqMessageService.getMessageList(shardIndex, shardTotal,messageType, count);
@@ -83,7 +82,6 @@ public abstract class MessageProcessAbstract {
                         countDownLatch.countDown();
                     }
                     log.debug("结束任务:{}",message);
-
                 });
             });
 
@@ -92,12 +90,7 @@ public abstract class MessageProcessAbstract {
             System.out.println("结束....");
         } catch (InterruptedException e) {
            e.printStackTrace();
-
         }
-
-
     }
-
-
 
 }

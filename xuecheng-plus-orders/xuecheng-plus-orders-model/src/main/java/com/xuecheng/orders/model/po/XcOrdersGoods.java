@@ -9,10 +9,7 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * <p>
- * 
- * </p>
- *
+ * 订单对应商品
  * @author itcast
  */
 @Data
@@ -54,6 +51,4 @@ public class XcOrdersGoods implements Serializable {
      * 商品详情json,可为空
      */
     private String goodsDetail;
-
-
 }

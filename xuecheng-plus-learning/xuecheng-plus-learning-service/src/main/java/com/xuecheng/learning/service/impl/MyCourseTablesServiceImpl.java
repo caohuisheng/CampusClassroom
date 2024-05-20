@@ -140,6 +140,7 @@ public class MyCourseTablesServiceImpl implements MyCourseTablesService {
                 .eq(XcChooseCourse::getOrderType,"700002") //收费订单
                 .eq(XcChooseCourse::getStatus,"701002"); //待支付
         XcChooseCourse xcChooseCourse = chooseCourseMapper.selectOne(lqw);
+        //如果存在选课记录，直接返回
         if(xcChooseCourse != null){
             return xcChooseCourse;
         }
@@ -207,5 +208,18 @@ public class MyCourseTablesServiceImpl implements MyCourseTablesService {
         PageResult<XcCourseTables> coursePageResult = new PageResult<>(records,records.size(),pageNo,pageSize);
 
         return coursePageResult;
+    }
+
+    @Override
+    public boolean saveChooseCourseStatus(String choosecourseId) {
+        //查询选课记录
+        XcChooseCourse xcChooseCourse = chooseCourseMapper.selectById(choosecourseId);
+        //创建课表实例并添加到数据库
+        XcCourseTables xcCourseTables = new XcCourseTables();
+        BeanUtils.copyProperties(xcChooseCourse,xcCourseTables);
+        xcCourseTables.setId(null);
+        xcCourseTables.setChooseCourseId(xcChooseCourse.getId());
+        courseTablesMapper.insert(xcCourseTables);
+        return true;
     }
 }

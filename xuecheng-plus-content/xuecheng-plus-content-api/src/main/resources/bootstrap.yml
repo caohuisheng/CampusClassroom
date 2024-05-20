@@ -2,6 +2,8 @@
 #  servlet:
 #    context-path: /content
 #  port: 63040
+server:
+  port: 8089
 
 #微服务配置
 spring:
@@ -14,7 +16,7 @@ spring:
 #    password: root
   cloud:
     nacos:
-      server-addr: 192.168.101.65:8848
+      server-addr: centos:8848
       discovery:
         namespace: dev
         group: xuecheng-plus-project

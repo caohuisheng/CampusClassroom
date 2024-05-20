@@ -18,5 +18,4 @@ public interface MediaServiceClient {
 
     @GetMapping("/open/preview/{mediaId}")
     public RestResponse<String> getPlayUrlByMediaId(@PathVariable("mediaId") String mediaId);
-
 }

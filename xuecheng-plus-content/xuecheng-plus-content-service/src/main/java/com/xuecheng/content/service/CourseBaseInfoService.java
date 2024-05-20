@@ -7,11 +7,13 @@ import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.QueryCourseParamsDto;
 import com.xuecheng.content.model.dto.UpdateCourseDto;
 import com.xuecheng.content.model.po.CourseBase;
+import com.xuecheng.content.model.po.CoursePublish;
 
 /**
  * 课程基本信息服务
  */
 public interface CourseBaseInfoService {
+
     /**
      * 课程查询接口
      * @param pageParams 分页参数

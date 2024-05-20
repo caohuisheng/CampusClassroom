@@ -7,6 +7,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>xuecheng-plus-parent</name>
     <description>xuecheng-plus-parent</description>
+    <!--该模块为pom项目-->
     <packaging>pom</packaging>
 
     <properties>
@@ -182,8 +183,8 @@
                 <artifactId>elasticsearch</artifactId>
                 <version>${elasticsearch.version}</version>
             </dependency>
-        </dependencies>
 
+        </dependencies>
     </dependencyManagement>
 
     <build>

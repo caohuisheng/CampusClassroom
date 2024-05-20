@@ -17,19 +17,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableSwagger2Doc
 @SpringBootApplication
 public class SystemApplication {
-    @Value("${spring.datasource.username}")
-    private static String pwd;
-    @Value("${spring.datasource.url}")
-    private static String url;
 
     public static void main(String[] args) {
         SpringApplication.run(SystemApplication.class,args);
-        //show();
-        System.out.println(pwd);
-        System.out.println(url);
     }
-//    static void show(){
-//        System.out.println(pwd);
-//        System.out.println(url);
-//    }
 }

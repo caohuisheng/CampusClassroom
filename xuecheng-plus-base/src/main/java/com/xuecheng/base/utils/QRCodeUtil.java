@@ -76,6 +76,6 @@ public class QRCodeUtil {
 
     public static void main(String[] args) throws IOException{
         QRCodeUtil qrCodeUtil = new QRCodeUtil();
-        System.out.println(qrCodeUtil.createQRCode("http://www.itcast.cn/", 200, 200));
+        System.out.println(qrCodeUtil.createQRCode("http://10.130.198.209:8085/orders/alipaytest", 200, 200));
     }
 }
