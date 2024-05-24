@@ -60,7 +60,6 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
         //3.课程缓存
         saveCourseCache(mqMessage,courseId);
-        new Page<Object>(1,2);
         return true;
     }
 

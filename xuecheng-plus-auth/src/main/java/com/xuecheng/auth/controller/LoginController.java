@@ -28,11 +28,6 @@ public class LoginController {
     @Autowired
     XcUserMapper userMapper;
 
-    @RequestMapping("/test")
-    public String test(){
-        return "hello";
-    }
-
     @Resource(name="registerService")
     private RegisterService registerService;
 
@@ -42,7 +37,7 @@ public class LoginController {
         return registerService.register(registerParams);
     }
 
-    @RequestMapping("/login-successa")
+    @RequestMapping("/login-success")
     public String loginSuccess() {
         return "登录成功";
     }
